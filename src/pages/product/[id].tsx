@@ -1,4 +1,8 @@
-import { ImageContainer, ProductContainer, ProductDetailsContainer } from "../../styles/pages/product";
+import {
+  ImageContainer,
+  ProductContainer,
+  ProductDetailsContainer,
+} from "../../styles/pages/product";
 import Image from "next/image";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { stripe } from "../../lib/stripe";
@@ -6,75 +10,84 @@ import Stripe from "stripe";
 import { Product } from "..";
 import axios from "axios";
 import { useState } from "react";
+import Head from "next/head";
 
-interface DetailedProduct extends Product{
+interface DetailedProduct extends Product {
   description: string;
   priceId: string;
 }
 
 interface ProductProps {
-  product: DetailedProduct
+  product: DetailedProduct;
 }
 
-export default function Product({ product }: ProductProps){
-
-  const [ isCreatingCheckoutSession, setIsCreatingCheckoutSession ] = useState(false)
+export default function Product({ product }: ProductProps) {
+  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] =
+    useState(false);
 
   async function handleBuyProduct() {
     try {
-      setIsCreatingCheckoutSession(true)
-      
+      setIsCreatingCheckoutSession(true);
+
       const response = await axios.post("/api/checkout", {
-        priceId: product.priceId
-      })
-      
-      const { checkoutUrl } = response.data
-      
-      window.location.href = checkoutUrl
-      
+        priceId: product.priceId,
+      });
+
+      const { checkoutUrl } = response.data;
+
+      window.location.href = checkoutUrl;
     } catch (error) {
-      setIsCreatingCheckoutSession(false)
-      
-      alert("Falha ao redirecionar ao checkout! Tente novamente mais tarde.")
+      setIsCreatingCheckoutSession(false);
+
+      alert("Falha ao redirecionar ao checkout! Tente novamente mais tarde.");
     }
   }
 
   return (
-    <ProductContainer>
-      <ImageContainer>
-        <Image src={product.imageUrl} alt="" width={520} height={480} />
-      </ImageContainer>
-      
-      <ProductDetailsContainer>
-        <h1>{product.name}</h1>
-        <span>{product.price}</span>
+    <>
+      <Head>
+        <title>{product.name} | Ignite Shop</title>
+      </Head>
+      <ProductContainer>
+        <ImageContainer>
+          <Image src={product.imageUrl} alt="" width={520} height={480} />
+        </ImageContainer>
 
-        <p>{product.description}</p>
+        <ProductDetailsContainer>
+          <h1>{product.name}</h1>
+          <span>{product.price}</span>
 
-        <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct}>
-          Comprar agora
-        </button>
-      </ProductDetailsContainer>
-    </ProductContainer>
-  )
+          <p>{product.description}</p>
+
+          <button
+            disabled={isCreatingCheckoutSession}
+            onClick={handleBuyProduct}
+          >
+            Comprar agora
+          </button>
+        </ProductDetailsContainer>
+      </ProductContainer>
+    </>
+  );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [
       {
-        params: {id: "prod_O4PGPStCWjbIwF"}
-      }
+        params: { id: "prod_O4PGPStCWjbIwF" },
+      },
     ],
-    fallback: "blocking"
-  }
-}
+    fallback: "blocking",
+  };
+};
 
-export const getStaticProps: GetStaticProps<any, { id: string }> = async ({ params }) => {
+export const getStaticProps: GetStaticProps<any, { id: string }> = async ({
+  params,
+}) => {
+  const productId = params!.id;
 
-  const productId = params!.id
-
-  const product = await stripe.products.retrieve(productId,{
+  const product = await stripe.products.retrieve(productId, {
     expand: ["default_price"],
   });
 
@@ -87,14 +100,13 @@ export const getStaticProps: GetStaticProps<any, { id: string }> = async ({ para
         name: product.name,
         imageUrl: product.images[0],
         description: product.description,
-        price: new Intl.NumberFormat('pt-br', {
-          style: 'currency',
-          currency: 'BRL'
+        price: new Intl.NumberFormat("pt-br", {
+          style: "currency",
+          currency: "BRL",
         }).format(price.unit_amount! / 100),
         priceId: price.id,
-      }
+      },
     },
     revalidate: 60 * 60 * 1, // 1 hour
-  }
-
-}
+  };
+};
