@@ -29,6 +29,7 @@ export const Product = styled("div", {
 
   img: {
     objectFit: "cover",
+    transition: "all 0.5s",
   },
 
   footer: {
@@ -62,6 +63,10 @@ export const Product = styled("div", {
   },
 
   "&:hover": {
+    img: {
+      transform: "scale(1.15)",
+    },
+
     footer: {
       transform: "translateY(0%)",
       opacity: 1,
