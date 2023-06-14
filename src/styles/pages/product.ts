@@ -1,13 +1,20 @@
 import { styled } from "..";
+import { fadeIn } from "./home";
 
 export const ProductContainer = styled("main", {
   display: "grid",
-  gridTemplateColumns: "1fr 1fr",
+  gridTemplateColumns: "1fr 15fr 15fr",
   alignItems: "stretch",
   gap: "4rem",
 
   maxWidth: 1180,
   margin: "0 auto",
+
+  a: {
+    color: "$gray100",
+  },
+
+  animation: `${fadeIn} 800ms`,
 });
 
 export const ImageContainer = styled("div", {
