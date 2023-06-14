@@ -22,6 +22,7 @@ interface HomeProps {
 
 export default function Home({ products }: HomeProps) {
   const [sliderRef] = useKeenSlider({
+    loop: true,
     slides: {
       perView: 2,
       spacing: 48,
